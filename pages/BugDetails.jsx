@@ -15,19 +15,18 @@ export function BugDetails() {
             .catch(err => showErrorMsg(`Cannot load bug`, err))
     }, [])
 
-    return <div className="bug-details">
-        <h3>Bug Details</h3>
+    return <div className="bug-details main-content">
+        <h2>Bug Details</h2>
         {!bug && <p className="loading">Loading....</p>}
         {
             bug && 
             <div>
-                <h4>{bug.title}</h4>
-                <h5>Severity: <span>{bug.severity}</span></h5>
+                <h3>{bug.title}</h3>
+                <p className="severity">Severity: <span>{bug.severity}</span></p>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veniam esse facilis vitae numquam architecto mollitia fugiat culpa minima aperiam amet sapiente, voluptate sit, in nemo ea. Expedita iure tempore explicabo?</p>
             </div>
         }
-        <hr />
-        <Link to="/bug">Back to List</Link>
+        <button><Link to="/bug">Back to List</Link></button>
     </div>
 
 }

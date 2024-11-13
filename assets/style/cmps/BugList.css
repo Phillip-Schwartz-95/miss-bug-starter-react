@@ -13,10 +13,10 @@
     gap: 1em;
 
     padding: .7em;
-    background-color: var(--bg1);
+    background-color: var(--gray1);
     border-radius: .2em;
 
-    color: whitesmoke;
+    color: var(--clr-txt-light);
 }
 
 .bug-list .actions {

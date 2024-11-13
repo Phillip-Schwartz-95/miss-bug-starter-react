@@ -44,6 +44,8 @@ export function BugIndex() {
 
     function onEditBug(bug) {
         const severity = +prompt('New severity?', bug.severity)
+        if (!severity || severity === bug.severity) return
+
         const bugToSave = { ...bug, severity }
 
         bugService.save(bugToSave)
@@ -63,12 +65,15 @@ export function BugIndex() {
 
     return <section className="bug-index main-content">
         
-        <BugFilter filterBy={filterBy} onSetFilterBy={onSetFilterBy} />
         <header>
-            <h3>Bug List</h3>
+            <h2>Bug List</h2>
             <button onClick={onAddBug}>Add Bug</button>
         </header>
         
+        <BugFilter 
+            filterBy={filterBy} 
+            onSetFilterBy={onSetFilterBy} />
+
         <BugList 
             bugs={bugs} 
             onRemoveBug={onRemoveBug} 
