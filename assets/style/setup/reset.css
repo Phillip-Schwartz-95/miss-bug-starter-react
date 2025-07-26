@@ -29,10 +29,6 @@ a {
     color: inherit;
 }
 
-a:hover {
-    text-decoration: underline;
-}
-
 img, video, picture, svg, canvas {
     max-width: 100%;
 }
