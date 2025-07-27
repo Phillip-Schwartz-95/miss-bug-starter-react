@@ -8,14 +8,15 @@ app.use(cookieParser())
 // CORS middleware
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*') // allow any origin
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  next()
+    res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:5500')
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.header('Access-Control-Allow-Credentials', 'true') // Required for cookies
+    next()
 })
 
 let gBugs = [
-     {
+    {
         _id: "1NF1N1T3",
         title: "Infinite Loop Detected",
         description: "The system has encountered an infinite loop in the code execution.",
@@ -29,7 +30,7 @@ let gBugs = [
         createdAt: Date.now(),
     },
     {
-         _id: "C0FF33",
+        _id: "C0FF33",
         title: "404 Coffee Not Found",
         description: 'The coffee machine is out of order, please try again later.',
         severity: 2,
@@ -53,11 +54,46 @@ app.get('/api/bug', (req, res) => {
     res.json(gBugs)
 })
 
-// READ
+// READ with cookie usage limit (Promise style)
 app.get('/api/bug/:bugId', (req, res) => {
-    const bug = gBugs.find((bug) => bug._id === req.params.bugId)
-    if (!bug) return res.status(404).send('Bug not found')
-    res.json(bug)
+    const bugId = req.params.bugId
+
+    Promise.resolve()
+        .then(() => {
+            // Parse visited bugs from cookie
+            let visitedBugIds = []
+            if (req.cookies.visitedBugs) {
+                try {
+                    visitedBugIds = JSON.parse(req.cookies.visitedBugs)
+                } catch (err) {
+                    console.log('Failed to parse visitedBugs cookie:', err)
+                }
+            }
+
+            if (!visitedBugIds.includes(bugId)) visitedBugIds.push(bugId)
+
+            // Log visited bugs
+            console.log('User visited bugs:', visitedBugIds)
+
+            // If user viewed more than 3 bugs
+            if (visitedBugIds.length > 3) {
+                return Promise.reject({ status: 401, message: 'Wait for a bit' })
+            }
+
+            // 7 seconds expiry
+            res.cookie('visitedBugs', JSON.stringify(visitedBugIds), { maxAge: 7000, httpOnly: false })
+
+            return visitedBugIds
+        })
+        .then(() => {
+            // Find the bug
+            const bug = gBugs.find(bug => bug._id === bugId)
+            if (!bug) throw { status: 404, message: 'Bug not found' }
+            res.json(bug)
+        })
+        .catch(err => {
+            res.status(err.status || 500).send(err.message || 'Server error')
+        })
 })
 
 // SAVE (add or update)

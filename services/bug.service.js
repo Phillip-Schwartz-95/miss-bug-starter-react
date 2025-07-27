@@ -9,7 +9,10 @@ export const bugService = {
 }
 
 function query(filterBy) {
-    return fetch(BASE_URL)
+    return fetch(BASE_URL, {
+        method: 'GET',
+        credentials: 'include', // for using cookies
+    })
         .then(res => res.json())
         .then(bugs => {
             if (!filterBy) return bugs
@@ -30,13 +33,17 @@ function query(filterBy) {
 }
 
 function getById(bugId) {
-    return fetch(`${BASE_URL}/${bugId}`)
-        .then(res => res.json())
+    return fetch(`${BASE_URL}/${bugId}`, {
+        method: 'GET',
+        credentials: 'include', // cookies
+    }).then(res => res.json())
 }
 
 function remove(bugId) {
-    return fetch(`${BASE_URL}/${bugId}/remove`)
-        .then(res => res.json())
+    return fetch(`${BASE_URL}/${bugId}/remove`, {
+        method: 'GET',
+        credentials: 'include', // cookies
+    }).then(res => res.json())
 }
 
 function save(bug) {
@@ -47,8 +54,10 @@ function save(bug) {
     queryParams.append('severity', bug.severity)
     queryParams.append('description', bug.description || '')
 
-    return fetch(`${BASE_URL}/save?${queryParams.toString()}`)
-        .then(res => res.json())
+    return fetch(`${BASE_URL}/save?${queryParams.toString()}`, {
+        method: 'GET',
+        credentials: 'include', // cookies
+    }).then(res => res.json())
 }
 
 function getDefaultFilter() {
