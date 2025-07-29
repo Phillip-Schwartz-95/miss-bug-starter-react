@@ -10,23 +10,31 @@ export function BugDetails() {
     const { bugId } = useParams()
 
     useEffect(() => {
-        bugService.getById(bugId)
-            .then(bug => setBug(bug))
-            .catch(err => showErrorMsg(`Cannot load bug`, err))
+        loadBug()
     }, [])
 
-    return <div className="bug-details main-content">
-        <h2>Bug Details</h2>
-        {!bug && <p className="loading">Loading....</p>}
-        {
-            bug && 
+    async function loadBug() {
+        try {
+            const bug = await bugService.getById(bugId) // calls /api/bug/:bugId
+            setBug(bug)
+        } catch (err) {
+            showErrorMsg('Cannot load bug')
+        }
+    }
+
+    if (!bug) return <p className="loading">Loading....</p>
+
+    return (
+        <div className="bug-details main-content">
+            <h2>Bug Details</h2>
             <div>
                 <h3>{bug.title}</h3>
                 <p className="severity">Severity: <span>{bug.severity}</span></p>
-                <p>Description: {bug.description}</p>
+                <p><strong>Description:</strong> {bug.description || 'No description provided'}</p>
             </div>
-        }
-        <button><Link to="/bug">Back to List</Link></button>
-    </div>
-
+            <Link to="/bug">
+                <button>Back to List</button>
+            </Link>
+        </div>
+    )
 }
