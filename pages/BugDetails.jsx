@@ -5,8 +5,8 @@ import { bugService } from '../services/bug.service.js'
 import { showErrorMsg } from '../services/event-bus.service.js'
 
 export function BugDetails() {
-
     const [bug, setBug] = useState(null)
+    const [error, setError] = useState(null)
     const { bugId } = useParams()
 
     useEffect(() => {
@@ -15,12 +15,27 @@ export function BugDetails() {
 
     async function loadBug() {
         try {
-            const bug = await bugService.getById(bugId) // calls /api/bug/:bugId
+            const bug = await bugService.getById(bugId)
             setBug(bug)
         } catch (err) {
-            showErrorMsg('Cannot load bug')
+            if (err.response && err.response.status === 401) {
+                setError("You have viewed too many bugs. Please wait a few seconds and try again.")
+                showErrorMsg("You have viewed too many bugs. Please wait a few seconds and try again.")
+            } else {
+                setError("Cannot load bug")
+                showErrorMsg("Cannot load bug")
+            }
         }
     }
+
+    if (error) return (
+        <div className="bug-details-error">
+            <p>{error}</p>
+            <Link to="/bug">
+                <button>Back to List</button>
+            </Link>
+        </div>
+    )
 
     if (!bug) return <p className="loading">Loading....</p>
 
